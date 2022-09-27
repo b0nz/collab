@@ -1,7 +1,9 @@
 import { Box, Button, HStack, Spinner, Stack } from "@chakra-ui/react";
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
+import Cursor from "../../components/Cursor";
 import useStore from "../../store";
+import { COLORS } from "../../utils/constants";
 import "./style.css";
 
 const Rectangle = ({ shape, selectionColor, id }) => {
@@ -58,7 +60,7 @@ const Room = () => {
     >
       {isLoading && <Spinner />}
       {!isLoading && (
-        <Stack>
+        <Stack id="stak">
           <div>{id}</div>
           <HStack>
             <Button colorScheme="green" onClick={insertRectangle}>
@@ -96,6 +98,21 @@ const Room = () => {
           })}
         </Stack>
       )}
+      {others.map(({ connectionId, presence }) => {
+        if (presence === null || !presence.cursor) {
+          return null;
+        }
+        console.log(connectionId);
+        return (
+          <Cursor
+            key={connectionId}
+            color={COLORS[connectionId % COLORS.length]}
+            x={presence.cursor.x}
+            y={presence.cursor.y}
+            // message={presence.message}
+          />
+        );
+      })}
     </Box>
   );
 };

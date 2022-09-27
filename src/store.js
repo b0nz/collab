@@ -1,9 +1,7 @@
 import create from "zustand";
 import { createClient } from "@liveblocks/client";
 import { middleware } from "@liveblocks/zustand";
-import { API_KEY } from "./utils/constants";
-
-const COLORS = ["#DC2626", "#D97706", "#059669", "#7C3AED", "#DB2777"];
+import { API_KEY, COLORS } from "./utils/constants";
 
 function getRandomInt(max) {
   return Math.floor(Math.random() * max);
@@ -23,6 +21,7 @@ const useStore = create(
       shapes: {},
       selectedShape: null,
       isDragging: false,
+      cursor: { x: 0, y: 0 },
       insertRectangle: () => {
         const { shapes, liveblocks } = get();
 
@@ -70,6 +69,10 @@ const useStore = create(
 
         if (shape && isDragging) {
           set({
+            cursor: {
+              x: Math.round(e.clientX),
+              y: Math.round(e.clientY),
+            },
             shapes: {
               ...shapes,
               [selectedShape]: {
@@ -79,13 +82,20 @@ const useStore = create(
               },
             },
           });
+        } else {
+          set({
+            cursor: {
+              x: Math.round(e.clientX),
+              y: Math.round(e.clientY),
+            },
+          });
         }
       },
     }),
     {
       client,
       storageMapping: { shapes: true },
-      presenceMapping: { selectedShape: true },
+      presenceMapping: { selectedShape: true, cursor: true },
     }
   )
 );
