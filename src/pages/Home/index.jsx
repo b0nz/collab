@@ -7,11 +7,11 @@ import {
   Input,
   VStack,
 } from "@chakra-ui/react";
-import { useNavigate } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 
 const Home = () => {
-  const navigate = useNavigate();
+  const history = useHistory();
 
   return (
     <Box
@@ -34,7 +34,7 @@ const Home = () => {
               w="full"
               colorScheme="teal"
               onClick={() => {
-                navigate(`/room/${uuidv4()}`);
+                history.push(`/room/${uuidv4()}`);
               }}
             >
               Generate Room
@@ -43,7 +43,7 @@ const Home = () => {
           <form
             onSubmit={(e) => {
               e.preventDefault();
-              navigate(`/room/${e.target.room_id.value}`);
+              history.push(`/room/${e.target.room_id.value}`);
             }}
             style={{ width: "100%" }}
           >
