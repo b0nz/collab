@@ -1,9 +1,32 @@
-import { Box, Button, HStack, Spinner, Stack } from "@chakra-ui/react";
+import { LinkIcon, SettingsIcon } from "@chakra-ui/icons";
+import {
+  Box,
+  Button,
+  FormControl,
+  FormLabel,
+  HStack,
+  IconButton,
+  Input,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  Spinner,
+  Stack,
+  Tooltip,
+  useClipboard,
+  useDisclosure,
+  useToast,
+} from "@chakra-ui/react";
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import Cursor from "../../components/Cursor";
-import useStore from "../../store";
+import useStore from "../../utils/store";
 import { COLORS } from "../../utils/constants";
+import _ from "lodash";
 import "./style.css";
 
 const Rectangle = ({ shape, selectionColor, id }) => {
@@ -27,9 +50,10 @@ const Rectangle = ({ shape, selectionColor, id }) => {
 
 const Room = () => {
   const { id } = useParams();
-
   const {
     shapes,
+    username,
+    setUsername,
     insertRectangle,
     selectedShape,
     deleteShape,
@@ -40,10 +64,18 @@ const Room = () => {
   const { others, enterRoom, leaveRoom, isLoading, room } = liveblocks;
   const undo = room?.history.undo;
   const redo = room?.history.redo;
+  const { onCopy } = useClipboard(window.location.href);
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const toast = useToast();
 
   useEffect(() => {
-    enterRoom(id, { shapes: {} });
-
+    enterRoom(id, {
+      shapes: {},
+      selectedShape: null,
+      isDragging: false,
+      cursor: { x: 0, y: 0 },
+      username: null,
+    });
     return () => {
       leaveRoom(id);
     };
@@ -60,22 +92,76 @@ const Room = () => {
     >
       {isLoading && <Spinner />}
       {!isLoading && (
-        <Stack id="stak">
-          <div>{id}</div>
-          <HStack>
-            <Button colorScheme="green" onClick={insertRectangle}>
-              Rectangle
-            </Button>
-            <Button
-              colorScheme="red"
-              onClick={deleteShape}
-              disabled={selectedShape == null}
-            >
-              Delete
-            </Button>
-            <Button onClick={undo}>Undo</Button>
-            <Button onClick={redo}>Redo</Button>
+        <Stack>
+          <HStack p="4" justifyContent="space-between">
+            <HStack>
+              <Button colorScheme="green" onClick={insertRectangle}>
+                Rectangle
+              </Button>
+              <Button
+                colorScheme="red"
+                onClick={deleteShape}
+                disabled={selectedShape == null}
+              >
+                Delete
+              </Button>
+              <Button variant="outline" colorScheme="blackAlpha" onClick={undo}>
+                Undo
+              </Button>
+              <Button variant="outline" colorScheme="blackAlpha" onClick={redo}>
+                Redo
+              </Button>
+            </HStack>
+            <HStack>
+              <Tooltip label="Copy Link">
+                <IconButton
+                  variant="ghost"
+                  colorScheme="blackAlpha"
+                  onClick={() => {
+                    onCopy();
+                    toast({
+                      title: "Link Coppied",
+                      status: "success",
+                      position: "bottom-right",
+                      duration: 3000,
+                      isClosable: true,
+                    });
+                  }}
+                  icon={<LinkIcon />}
+                />
+              </Tooltip>
+              <Tooltip label="Settings">
+                <IconButton
+                  variant="ghost"
+                  colorScheme="blackAlpha"
+                  onClick={onOpen}
+                  icon={<SettingsIcon />}
+                />
+              </Tooltip>
+            </HStack>
           </HStack>
+          {/* Modal Settings */}
+          <Modal blockScrollOnMount={false} isOpen={isOpen} onClose={onClose}>
+            <ModalOverlay />
+            <ModalContent>
+              <ModalHeader>Settings</ModalHeader>
+              <ModalCloseButton />
+              <ModalBody>
+                <FormControl>
+                  <FormLabel>Username</FormLabel>
+                  <Input
+                    placeholder="Input username"
+                    defaultValue={username}
+                    onChange={_.debounce((e) => {
+                      setUsername(e.target.value);
+                    }, 1000)}
+                  />
+                </FormControl>
+              </ModalBody>
+              <ModalFooter></ModalFooter>
+            </ModalContent>
+          </Modal>
+          {/* ==== */}
           {Object.entries(shapes).map(([shapeId, shape]) => {
             let selectionColor = "transparent";
 
@@ -102,14 +188,14 @@ const Room = () => {
         if (presence === null || !presence.cursor) {
           return null;
         }
-        console.log(connectionId);
+
         return (
           <Cursor
             key={connectionId}
             color={COLORS[connectionId % COLORS.length]}
             x={presence.cursor.x}
             y={presence.cursor.y}
-            // message={presence.message}
+            label={presence.username}
           />
         );
       })}

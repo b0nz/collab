@@ -1,15 +1,9 @@
 import create from "zustand";
 import { createClient } from "@liveblocks/client";
 import { middleware } from "@liveblocks/zustand";
-import { API_KEY, COLORS } from "./utils/constants";
-
-function getRandomInt(max) {
-  return Math.floor(Math.random() * max);
-}
-
-function getRandomColor() {
-  return COLORS[getRandomInt(COLORS.length)];
-}
+import { API_KEY } from "./constants";
+import { getRandomColor, getRandomInt } from ".";
+import { faker } from "@faker-js/faker";
 
 const client = createClient({
   publicApiKey: API_KEY,
@@ -22,6 +16,9 @@ const useStore = create(
       selectedShape: null,
       isDragging: false,
       cursor: { x: 0, y: 0 },
+      username: faker.name.firstName(),
+      setUsername: (username) =>
+        set({ username: username || faker.name.firstName() }),
       insertRectangle: () => {
         const { shapes, liveblocks } = get();
 
@@ -95,7 +92,7 @@ const useStore = create(
     {
       client,
       storageMapping: { shapes: true },
-      presenceMapping: { selectedShape: true, cursor: true },
+      presenceMapping: { selectedShape: true, cursor: true, username: true },
     }
   )
 );
