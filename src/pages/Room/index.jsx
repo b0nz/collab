@@ -1,5 +1,7 @@
 import { LinkIcon, SettingsIcon } from "@chakra-ui/icons";
 import {
+  Avatar,
+  AvatarGroup,
   Box,
   Button,
   FormControl,
@@ -85,7 +87,7 @@ const Room = () => {
     <Box
       w="full"
       minH="100vh"
-      bgColor="gray.200"
+      bgColor="white"
       style={{ touchAction: "none" }}
       onPointerMove={onCanvasPointerMove}
       onPointerUp={onCanvasPointerUp}
@@ -113,7 +115,17 @@ const Room = () => {
               </Button>
             </HStack>
             <HStack>
-              <Tooltip label="Copy Link">
+              <AvatarGroup spacing="-0.5" fontSize="xs" size="sm" max={2}>
+                {others.map(({ connectionId, presence }) => (
+                  <Avatar
+                    
+                    key={connectionId}
+                    bgColor={COLORS[connectionId % COLORS.length]}
+                    name={presence?.username}
+                  />
+                ))}
+              </AvatarGroup>
+              <Tooltip hasArrow label="Copy Link" placemnet="auto">
                 <IconButton
                   variant="ghost"
                   colorScheme="blackAlpha"
@@ -130,7 +142,7 @@ const Room = () => {
                   icon={<LinkIcon />}
                 />
               </Tooltip>
-              <Tooltip label="Settings">
+              <Tooltip hasArrow label="Settings" placement="auto">
                 <IconButton
                   variant="ghost"
                   colorScheme="blackAlpha"
@@ -158,7 +170,7 @@ const Room = () => {
                   />
                 </FormControl>
               </ModalBody>
-              <ModalFooter></ModalFooter>
+              <ModalFooter />
             </ModalContent>
           </Modal>
           {/* ==== */}
@@ -166,11 +178,11 @@ const Room = () => {
             let selectionColor = "transparent";
 
             if (selectedShape === shapeId) {
-              selectionColor = "blue";
+              selectionColor = "black";
             } else if (
               others.some((user) => user.presence?.selectedShape === shapeId)
             ) {
-              selectionColor = "green";
+              selectionColor = "yellow";
             }
 
             return (
@@ -193,9 +205,9 @@ const Room = () => {
           <Cursor
             key={connectionId}
             color={COLORS[connectionId % COLORS.length]}
-            x={presence.cursor.x}
-            y={presence.cursor.y}
-            label={presence.username}
+            x={presence?.cursor?.x}
+            y={presence?.cursor?.y}
+            label={presence?.username}
           />
         );
       })}
