@@ -1,6 +1,6 @@
 import { Box, Text } from "@chakra-ui/react";
 
-export default function Cursor({ color, x, y }) {
+export default function Cursor({ color, x, y, label }) {
   return (
     <Box
       top={0}
@@ -26,26 +26,21 @@ export default function Cursor({ color, x, y }) {
           fill={color}
         />
       </svg>
-      {/* {message && (
+      {label && (
         <Box
           pos="absolute"
           top={5}
           left={2}
-          px={4}
-          py={2}
+          py="0.5"
+          px="2"
           rounded="3xl"
           style={{ backgroundColor: color }}
         >
-          <Text
-            lineHeight={1.625}
-            color="white"
-            whiteSpace="nowrap"
-            fontSize="sm"
-          >
-            {message}
+          <Text color="white" whiteSpace="nowrap" fontSize="xs">
+            {label}
           </Text>
         </Box>
-      )} */}
+      )}
     </Box>
   );
 }
